@@ -1,0 +1,213 @@
+# Create Original Deck
+
+suits_name = ['Diamond','Club','Heart','Spade']
+suits_symbol = ['♦', '♣', '♥','♠']
+suits_number = ['A','2','3','4','5','6','7','8','9','10','J','Q','K']
+
+def original_deck():
+    '''
+    Create original Playing Card Deck sorted from A ♦ to K ♠
+    '''
+    deck = []
+    for i in range(len(suits_symbol)):
+        for j in range(len(suits_number)):
+            deck.append(suits_number[j]+''+suits_symbol[i])
+
+    return deck
+
+# Map suits_number to real number
+suits_value = [1,2,3,4,5,6,7,8,9,10,10,10,10]
+
+# Import random module for shuffling
+import random
+
+# Create class Deck, that define the cards, can Withdraw and can Shuffle
+
+class Deck():
+    
+    def __init__(self, deck = original_deck()):
+        self.deck = deck
+    
+    def withdraw(self):
+        print ('Withdraw 1 card from the deck')
+        return self.deck.pop(-1)
+    
+    def shuffle(self):
+        print ('Shuffle the deck')
+        random.shuffle(self.deck)
+    
+    def restart_deck(self):
+        print ('Restart the Deck')
+        self.deck = original_deck()
+        
+    def check_no_of_cards(self):
+        print (f'Number of cards left: {len(self.deck)}')
+        
+# Create Class Player Hand
+
+class PlayerHand():
+    
+    def __init__(self, deck, hand = []):
+        self.deck = deck
+        self.hand = hand
+        
+    def refresh_hand(self):
+        self.hand = []
+    
+    def start(self):
+        print ('Start!')
+        self.hand.append(self.deck.withdraw())
+        self.hand.append(self.deck.withdraw())
+        print (f'Cards on hand:  {self.hand}')
+        
+    def hit(self):
+        print ('Player hits')
+        self.hand.append(self.deck.withdraw())
+        print(f'Cards on Hands : {self.hand}')
+    
+    def stand(self):
+        print ('Player stands')
+        print(f'Cards on Hands : {self.hand}')
+        pass
+        
+ #Check sum in hands
+
+def check_sum(hand):
+    
+    # Map the hand to values
+    p1_hand_copy = [i for i in hand]
+    p1_value= []
+
+    for i in p1_hand_copy:
+        for j in range(len(suits_number)):
+            if i[0] == suits_number[j]:
+                p1_value.append(suits_value[j])
+
+    # Find how many 'A'
+    count_a = 0
+    for i in p1_value:
+        if i == 1:
+            count_a +=1
+                
+    # Find sum
+    sum_hand = 0
+    for i in p1_value:
+        sum_hand += i
+    if count_a == 0:
+        pass
+    elif count_a <= 3:
+        if sum_hand+10 <= 21:
+            sum_hand += 10
+
+    return sum_hand
+    
+# Check burst or not?
+def check_burst(sum_hand):
+    print(f'Total Value: {sum_hand}')
+    if sum_hand > 21:
+        print ('Hand Burst! Game over')
+        return True
+    else:
+        print ('Still steady')
+        return False
+        
+# Initialize CPU choice to choose hit or stand
+def cpu_choice(sum_hand):
+    if sum_hand in range(17,22):
+        return 2
+    else:
+        return 1
+        
+# Define Check who wins
+def check_win(sum_player,sum_cpu):
+    if sum_cpu == sum_player:
+        print ('Game Draw!')
+    elif sum_cpu > sum_player:
+        print ('CPU wins!')
+    else:
+        print ('Player wins!')
+        
+ # Player only plays!
+
+# Initialize the deck
+deck = Deck()
+deck.restart_deck()
+deck.shuffle()
+deck.check_no_of_cards()
+
+# Player 1 Plays
+print('Player 1 starts!')
+p1_hand = PlayerHand(deck)
+p1_hand.refresh_hand()
+p1_hand.start()
+deck.check_no_of_cards()
+
+# Initialize still playing or not
+p1_status = True
+p1_burst = False
+
+while p1_status == True and p1_burst == False:
+
+    # Player 1 Choose to Hit or Stand
+    option = int(input('Player Hit or Stand?\n1 - Hit\n2 - Stand\nType in 1 or 2: '))
+
+    if option == 1:
+        p1_hand.hit()
+        deck.check_no_of_cards()
+    elif option ==2:
+        p1_hand.stand()
+        p1_status = False
+
+    p1_hand.hand
+    # Check Sum and Burst
+    p1_burst = check_burst(check_sum(p1_hand.hand))
+
+if p1_burst == True:
+    print('Player lost. Thx for playing')
+else:
+    print('CPU turns now')
+    
+    
+    
+# Computer only plays!
+print('\n'*5)
+
+# Initialize the deck. Not reshuffle after Player plays
+deck.check_no_of_cards()
+
+# CPU Plays
+print('CPU starts!')
+cpu_hand = PlayerHand(deck)
+cpu_hand.refresh_hand()
+cpu_hand.start()
+deck.check_no_of_cards()
+
+# Initialize still playing or not
+cpu_status = True
+cpu_burst = False
+
+while cpu_status == True and cpu_burst == False:
+
+    # CPU Choose to Hit or Stand
+    option = cpu_choice(check_sum(cpu_hand.hand))
+    print(f'Computer choose : {option}')
+
+    if option == 1:
+        cpu_hand.hit()
+        deck.check_no_of_cards()
+    elif option ==2:
+        cpu_hand.stand()
+        cpu_status = False
+
+    cpu_hand.hand
+    # Check Sum and Burst
+    cpu_burst = check_burst(check_sum(cpu_hand.hand))
+
+if cpu_burst == True:
+    print('CPU lost. Thx for playing')
+else:
+    print('Proceed with winning determination')
+    # End the Game
+    check_win(check_sum(p1_hand.hand),check_sum(cpu_hand.hand))
+
+    print ('Game ends. Thanks for playing')
